@@ -1,33 +1,22 @@
-data "aws_eks_cluster" "cluster" {
-  name = module.eks.cluster_id
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-  name = module.eks.cluster_id
-}
+#
+# Provider Configuration
+#
 
 provider "aws" {
-  region = var.region
+  region = "us-west-2"
+  version = "~> 1.24"
 }
 
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
-}
+# Using these data sources allows the configuration to be
+# generic for any region.
+data "aws_region" "current" {}
 
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.cluster.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-    token                  = data.aws_eks_cluster_auth.cluster.token
-  }
-}
+data "aws_availability_zones" "available" {}
 
-provider "kubectl" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-  load_config_file       = false
+# Not required: currently used in conjuction with using
+# icanhazip.com to determine local workstation external IP
+# to open EC2 Security Group access to the Kubernetes cluster.
+# See workstation-external-ip.tf for additional information.
+provider "http" {
+  version = "~> 1.0"
 }
