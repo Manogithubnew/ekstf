@@ -3,13 +3,20 @@ name: Provision eks cluster
 on:
   workflow_dispatch:
     inputs:
-      ec2-name:
-        description: EC2 name
-        required: true
-        default: 'App Server'
-        type: string
+      tags:
+        description: 'Environment Tags'
+        required: true 
+        type: choice
+        options:
+          - dev
+          - silo5
+          - uat
+          - prod
+          - sandbox
+        default: dev
+
 jobs:
-  provision-ec2:
+  eks-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
